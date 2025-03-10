@@ -1,5 +1,5 @@
 module github.com/altname/go-docx
 
-go 1.14
+go 1.23.3
 
 require golang.org/x/net v0.0.0-20200925080053-05aa5d4ee321
