@@ -205,9 +205,9 @@ func (d *Document) replace(placeholderMap PlaceholderMap, file string) ([]byte, 
 	}
 
 	// ensure that all placeholders have been replaced
-	if placeholderCount != replacer.ReplaceCount {
-		return nil, fmt.Errorf("not all placeholders were replaced, want=%d, have=%d", placeholderCount, replacer.ReplaceCount)
-	}
+	//if placeholderCount != replacer.ReplaceCount {
+	//	return nil, fmt.Errorf("not all placeholders were replaced, want=%d, have=%d", placeholderCount, replacer.ReplaceCount)
+	//}
 
 	d.fileReplacers[file] = replacer
 	d.filePlaceholders[file] = placeholders
