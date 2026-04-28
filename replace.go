@@ -57,9 +57,9 @@ func (r *Replacer) Replace(placeholderKey string, value string) error {
 			// ensure html escaping of special chars
 			// reassign to prevent overwriting the actual value which would cause multiple-escapes
 			tmpVal := html.EscapeString(value)
-			valueInBytes := bytes.Replace(
+			valueInBytes := bytes.ReplaceAll(
 				[]byte(tmpVal),
-				[]byte("\n"), []byte("</w:t><w:br/><w:t>"), -1)
+				[]byte("\n"), []byte("</w:t><w:br/><w:t>"))
 
 			// replace text of the placeholder'str first fragment with the actual value
 			r.replaceFragmentValue(placeholder.Fragments[0], string(valueInBytes))

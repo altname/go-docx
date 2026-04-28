@@ -217,10 +217,12 @@ func (parser *RunParser) findTextRuns() error {
 				if currentRun == nil {
 					return fmt.Errorf("unable to find currentRun for text start-element")
 				}
-				currentRun.HasText = true
-				currentRun.Text.OpenTag = Position{
-					Start: tagStartPos,
-					End:   tagEndPos,
+				if !currentRun.HasText {
+					currentRun.HasText = true
+					currentRun.Text.OpenTag = Position{
+						Start: tagStartPos,
+						End:   tagEndPos,
+					}
 				}
 			}
 

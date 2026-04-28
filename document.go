@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -257,12 +256,12 @@ func (d *Document) stripXmlTags(data string) string {
 loop:
 	for {
 		tok := tokenizer.Next()
-		switch {
-		case tok == html.ErrorToken:
+		switch tok {
+		case html.ErrorToken:
 			break loop // End of the document,  done
-		case tok == html.StartTagToken:
+		case html.StartTagToken:
 			prevToken = tokenizer.Token()
-		case tok == html.TextToken:
+		case html.TextToken:
 			if prevToken.Data == "script" {
 				continue
 			}
@@ -307,7 +306,7 @@ func (d *Document) parseArchive() error {
 			return nil
 		}
 		defer readCloser.Close()
-		fileBytes, err := ioutil.ReadAll(readCloser)
+		fileBytes, err := io.ReadAll(readCloser)
 		if err != nil {
 			return nil
 		}
