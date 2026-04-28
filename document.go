@@ -10,9 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
-
-	"golang.org/x/net/html"
 )
 
 const (
@@ -230,50 +227,6 @@ func (d *Document) Placeholders() (placeholders []*Placeholder) {
 	return placeholders
 }
 
-// countPlaceholders will return the total count of placeholders from the placeholderMap in the given data.
-// Reoccurring placeholders are also counted multiple times.
-func (d *Document) countPlaceholders(file string, placeholderMap PlaceholderMap) int {
-	data := d.GetFile(file)
-	plaintext := d.stripXmlTags(string(data))
-	var placeholderCount int
-	for key := range placeholderMap {
-		placeholder := AddPlaceholderDelimiter(key)
-
-		count := strings.Count(plaintext, placeholder)
-		if count > 0 {
-			placeholderCount += count
-		}
-	}
-	return placeholderCount
-}
-
-// stripXmlTags is a stdlib way of stripping out all xml tags using the html.Tokenizer.
-// The returned string will be everything except the tags.
-func (d *Document) stripXmlTags(data string) string {
-	var output string
-	tokenizer := html.NewTokenizer(strings.NewReader(data))
-	prevToken := tokenizer.Token()
-loop:
-	for {
-		tok := tokenizer.Next()
-		switch tok {
-		case html.ErrorToken:
-			break loop // End of the document,  done
-		case html.StartTagToken:
-			prevToken = tokenizer.Token()
-		case html.TextToken:
-			if prevToken.Data == "script" {
-				continue
-			}
-			TxtContent := strings.TrimSpace(html.UnescapeString(string(tokenizer.Text())))
-			if len(TxtContent) > 0 {
-				output += TxtContent
-			}
-		}
-	}
-	return output
-}
-
 // GetFile returns the content of the given fileName if it exists.
 func (d *Document) GetFile(fileName string) []byte {
 	if f, exists := d.files[fileName]; exists {
@@ -305,7 +258,7 @@ func (d *Document) parseArchive() error {
 		if err != nil {
 			return nil
 		}
-		defer readCloser.Close()
+		defer func() { _ = readCloser.Close() }()
 		fileBytes, err := io.ReadAll(readCloser)
 		if err != nil {
 			return nil
@@ -350,7 +303,7 @@ func (d *Document) WriteToFile(file string) error {
 	if err != nil {
 		return err
 	}
-	defer target.Close()
+	defer func() { _ = target.Close() }()
 
 	return d.Write(target)
 }
@@ -360,7 +313,7 @@ func (d *Document) WriteToFile(file string) error {
 // Files which cannot be modified through this lib will just be read from the original docx and copied into the writer.
 func (d *Document) Write(writer io.Writer) error {
 	zipWriter := zip.NewWriter(writer)
-	defer zipWriter.Close()
+	defer func() { _ = zipWriter.Close() }()
 
 	// writeModifiedFile will check if the given zipFile is a file which was modified and writes it.
 	// If the file is not one of the modified files, false is returned.
